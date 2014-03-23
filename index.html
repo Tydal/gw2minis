@@ -1,0 +1,101 @@
+<!--
+To change this template, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html>
+    <head>
+        <title></title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        
+        <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.4/themes/dark-hive/jquery-ui.css" />
+  <style>
+ #minis-wrapper { margin: 0; padding: 0;  }
+ #minis-wrapper ul { float:left; }
+      
+  .minis-list { list-style-type: none; margin: 0; padding: 0; width: 560px; border: 3px solid black; min-height: 600px}
+  .minis-list li { margin: 3px; padding: 1px; float: left; width: 60px; height: 60px; font-size: 4em; text-align: center; }
+  .minis-list li img { width: 50px; height: 50px; text-align: center;  vertical-align:central}
+  
+  </style>
+    </head>
+    <body>
+        <div>Gesamt: <span id="mini-total">0</span> Sammlung : <span id="mini-ct">0</span></div>
+        <div id="minis-wrapper">
+            <ul id="minis-raw" class="minis-list"></ul><ul id="minis-set1" class="minis-list"></ul>
+        </div>
+        
+        
+        
+        
+        
+        
+        
+    </body>
+    <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+    <script src="http://code.jquery.com/ui/1.9.2/jquery-ui.min.js"></script>
+    <script>
+        
+    $('#mini-total').data('amount', 0);
+    
+    $( "#minis-raw" ).sortable({
+        connectWith: ".minis-list"
+    });
+    $( "#minis-raw" ).disableSelection();
+    
+    $('#mini-ct').data('amount', 0);
+    $("#minis-set1" ).sortable({
+        connectWith: ".minis-list",
+        receive: function( event, ui ) {
+            
+          var $el = $('#mini-ct');
+          var v = ui.item.data('raw');
+          var amount = parseInt($el.data('amount'));
+          var price = parseInt(v.min_sale_unit_price);
+          var newAmount = (amount + price);
+          $el.data('amount', newAmount);
+          console.info('data', v.name, parseFloat($el.html()), amount , price, newAmount);
+          $el.html((newAmount/10000));
+          
+        }
+    });
+    $( "#minis-set1" ).disableSelection();
+        
+        
+$.ajax({
+  url: "http://www.gw2spidy.com/api/v0.9/json/all-items/11"
+})
+  .done(function( data ) {
+      
+      
+      //alert(data.results.length);
+      console.log(data);
+      var $sort = $( "#minis-raw" );
+          
+          $('#mini-total').data('amount', 0);
+      jQuery.each(data.results, function(i, v){
+          
+          var $li = $( '<li class="ui-state-default"><img src="'+v.img+'" title="'+v.name+' - '+(parseInt(v.min_sale_unit_price)/10000)+' G"/></li>' )
+            .data({
+                'raw' : v
+            })
+          .appendTo($sort);
+          console.log(i, $li.data('raw'));
+          
+          var $el = $('#mini-total');
+          var amount = parseInt($el.data('amount'));
+          var price = parseInt(v.min_sale_unit_price);
+          var newAmount = (amount + price);
+          $('#mini-total').data('amount', newAmount);
+          console.info('data', v.name, parseFloat($el.html()), amount , price, newAmount);
+          $el.html((newAmount/10000));
+          
+          
+      });
+      
+      
+  });
+        
+        
+    </script>
+</html>
